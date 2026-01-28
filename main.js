@@ -10,8 +10,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000);
 document.body.appendChild(renderer.domElement);
 
-camera.position.z = 10;
-
 const textureLoader = new THREE.TextureLoader();
 
 textureLoader.load(
@@ -43,7 +41,7 @@ function animate() {
   camera.position.z = 5 * Math.cos(t/50);
   camera.lookAt(0, 0, 0);
   t++;
-  
+
   renderer.render(scene, camera);
 }
 
