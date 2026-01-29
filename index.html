@@ -23,6 +23,17 @@
   <body oncontextmenu="return false;">
 
     <script type="module" src="main.js"></script>
-  
+    
+    <script id="error output">
+        window.onerror = function(message, source, line, column, error) {
+            alert(
+                "Error: " + message +
+                "\nFile: " + source +
+                "\nLine: " + line + ":" + column
+            );
+            return false; // let the error still appear in the console if DevTools is open
+        };
+    </script>
+
   </body>
 </html>

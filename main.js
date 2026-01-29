@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
-
-console.log(CANNON);
-console.log(CANNON?.Vec3);
+import { PhysicsObject } from './PhysicsObject.js';
 
 // Scene setup
 const scene = new THREE.Scene();
@@ -32,6 +30,7 @@ textureLoader.load(
 );
 
 const studTexture = textureLoader.load("./assets/stud.png");
+const studMaterial = new THREE.MeshBasicMaterial({map: studTexture});
 
 const floorTexture = textureLoader.load("./assets/stud.png");;
 floorTexture.wrapS = THREE.RepeatWrapping;
@@ -41,9 +40,9 @@ floorTexture.repeat.set(1000, 1000);
 // Create a simple cube
 const geometry = new THREE.BoxGeometry(1000, 1, 1000);
 const material = new THREE.MeshBasicMaterial({ map: floorTexture, color: 0x00FF00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-cube.position.y = -1;
+const floor = new THREE.Mesh(geometry, material);
+scene.add(floor);
+floor.position.y = -1;
 
 const floorShape = new CANNON.Box(new CANNON.Vec3(500, 0.5, 500));
 const floorBody = new CANNON.Body({
@@ -55,17 +54,28 @@ world.addBody(floorBody);
 
 camera.position.y = 10;
 
+const cube = new PhysicsObject({
+  world: world, 
+  scene: scene,  
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)), 
+  geometry: new THREE.BoxGeometry(1, 1, 1), 
+  material: studMaterial, 
+  position: {x: 0, y:10, z:0}});
+
 let t = 0;
 
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
 
+  cube.syncPosition();
+
   camera.position.x = Math.sin(t * 0.003) * 50;
   camera.position.z = Math.cos(t * 0.003) * 50;
   camera.lookAt(0, 0, 0);
   t++;
 
+  world.step(1/60);
   renderer.render(scene, camera);
 }
 
