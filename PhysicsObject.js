@@ -3,16 +3,16 @@ import * as CANNON from "cannon";
 
 class PhysicsObject {
     constructor ({ world, scene, shape, geometry, material,
-                   mass = 1, position = { x: 0, y: 0, z: 0 }, restitution = 0.2, friction = 0.3,}) {
+                   mass = 1, position = { x: 0, y: 0, z: 0 }, restitution = 0.2, friction = 1,}) {
         // --- Physics ---
         this.body = new CANNON.Body({
-          mass,
-          shape,
-          position: new CANNON.Vec3(position.x, position.y, position.z),
-          material: new CANNON.Material({
-            restitution,
-            friction,
-          }),
+            mass,
+            shape,
+            position: new CANNON.Vec3(position.x, position.y, position.z),
+            material: new CANNON.Material({
+                restitution,
+                friction,
+            }),
         });
 
         world.addBody(this.body);
@@ -22,9 +22,10 @@ class PhysicsObject {
         scene.add(this.mesh);
     }
 
-    syncPosition(self) {
-          this.mesh.position.copy(this.body.position);
-          this.mesh.quaternion.copy(this.body.quaternion);
+    syncPosition() {
+        this.position = this.body.position;
+        this.mesh.position.copy(this.body.position);
+        this.mesh.quaternion.copy(this.body.quaternion);
     }
 
     applyImpulse(vec) {
