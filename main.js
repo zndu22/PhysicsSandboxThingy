@@ -60,7 +60,27 @@ const cube = new PhysicsObject({
   shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)), 
   geometry: new THREE.BoxGeometry(1, 1, 1), 
   material: studMaterial, 
-  position: {x: 0, y:10, z:0}});
+  position: {x: 0, y:5, z:0}});
+
+const cube1 = new PhysicsObject({
+  world: world,
+  scene: scene,
+  shape: new CANNON.Box(new CANNON.Vec3(1, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(2, 2, 1),
+  material: studMaterial,
+  position: {x: 0, y: 7, z: 0}
+});
+
+var localPivotA = new CANNON.Vec3(0, -0.5, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(0, 1, 0); // top of bodyB
+
+var constraint = new CANNON.PointToPointConstraint(
+    cube.body, localPivotA,
+    cube1.body, localPivotB,
+    { collideConnected: false }
+);
+
+world.addConstraint(constraint);
 
 let t = 0;
 
@@ -69,9 +89,10 @@ function animate() {
   requestAnimationFrame(animate);
 
   cube.syncPosition();
+  cube1.syncPosition();
 
-  camera.position.x = Math.sin(t * 0.003) * 50;
-  camera.position.z = Math.cos(t * 0.003) * 50;
+  camera.position.x = Math.sin(t * 0.003) * 10;
+  camera.position.z = Math.cos(t * 0.003) * 10;
   camera.lookAt(0, 0, 0);
   t++;
 
