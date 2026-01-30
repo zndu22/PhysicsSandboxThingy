@@ -12,8 +12,8 @@ const world = new CANNON.World({
 });
 
 // jank knobs (important)
-world.solver.iterations = 5;
-world.allowSleep = false;
+world.solver.iterations = 10;
+world.allowSleep = true;
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000);
@@ -32,7 +32,7 @@ textureLoader.load(
 const studTexture = textureLoader.load("./assets/stud.png");
 const studMaterial = new THREE.MeshBasicMaterial({map: studTexture});
 
-const floorTexture = textureLoader.load("./assets/stud.png");;
+const floorTexture = textureLoader.load("./assets/stud.png");
 floorTexture.wrapS = THREE.RepeatWrapping;
 floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.set(1000, 1000);
@@ -53,6 +53,20 @@ floorBody.position.set(0, -1, 0);
 world.addBody(floorBody);
 
 camera.position.y = 10;
+
+const studTopTexture = textureLoader.load("./assets/studTop.png");
+const studBottomTexture = textureLoader.load("./assets/studBottom.png");
+const studSideTexture = textureLoader.load("./assets/studSide.png");
+
+const studBrickMaterial = [
+    new THREE.MeshBasicMaterial({ map: studSideTexture }), // Right
+    new THREE.MeshBasicMaterial({ map: studSideTexture }), // Left
+    new THREE.MeshBasicMaterial({ map: studTopTexture }), // Top
+    new THREE.MeshBasicMaterial({ map: studBottomTexture }), // Bottom
+    new THREE.MeshBasicMaterial({ map: studSideTexture }), // Front
+    new THREE.MeshBasicMaterial({ map: studSideTexture })  // Back
+];
+
 
 const cube = new PhysicsObject({
   world: world, 
@@ -91,9 +105,9 @@ function animate() {
   cube.syncPosition();
   cube1.syncPosition();
 
-  camera.position.x = Math.sin(t * 0.003) * 10;
-  camera.position.z = Math.cos(t * 0.003) * 10;
-  camera.lookAt(0, 0, 0);
+  camera.position.x = cube.position.x + Math.sin(t * 0.003) * 10;
+  camera.position.z = cube.position.z + Math.cos(t * 0.003) * 10;
+  camera.lookAt(cube.position.x, cube.position.y, cube.position.z);
   t++;
 
   world.step(1/60);
@@ -101,6 +115,10 @@ function animate() {
 }
 
 animate();
+
+window.addEventListener('click', () => {
+  cube.body.velocity.set(Math.random()*10-5, 5, Math.random()*10-5);
+});
 
 // Handle window resize
 window.addEventListener('resize', () => {
