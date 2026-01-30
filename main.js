@@ -101,15 +101,68 @@ const arm2 = new PhysicsObject({
   position: {x: -1.6, y: 5, z: 0}
 });
 
-var localPivotA = new CANNON.Vec3(0, -0.5, 0); // bottom of bodyA
-var localPivotB = new CANNON.Vec3(0, 1, 0); // top of bodyB
-var constraint = new CANNON.PointToPointConstraint(
+const leg1 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: 0.5, y: 3, z: 0}
+});
+
+const leg2 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: -0.5, y: 3, z: 0}
+});
+
+var localPivotA = new CANNON.Vec3(0, -0.51, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(0, 1.01, 0); // top of bodyB
+var headConstraint = new CANNON.PointToPointConstraint(
     head.body, localPivotA,
     body.body, localPivotB,
     {collideConnected: false}
 );
 
-world.addConstraint(constraint);
+var localPivotA = new CANNON.Vec3(-0.51, 0.5, 0);
+var localPivotB = new CANNON.Vec3(1.01, 0.5, 0);
+var arm1Constraint = new CANNON.PointToPointConstraint(
+    arm1.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+var localPivotA = new CANNON.Vec3(0.51, 0.5, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(-1.01, 0.5, 0); // top of bodyB
+var arm2Constraint = new CANNON.PointToPointConstraint(
+    arm2.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+var localPivotA = new CANNON.Vec3(0, 1, 0);
+var localPivotB = new CANNON.Vec3(0.5, -1.01, 0);
+var leg1Constraint = new CANNON.PointToPointConstraint(
+    leg1.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+var localPivotA = new CANNON.Vec3(0, 1, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(-0.5, -1.01, 0); // top of bodyB
+var leg2Constraint = new CANNON.PointToPointConstraint(
+    leg2.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+world.addConstraint(headConstraint);
+world.addConstraint(arm1Constraint);
+world.addConstraint(arm2Constraint);
+world.addConstraint(leg1Constraint);
+world.addConstraint(leg2Constraint);
+
 
 let t = 0;
 
@@ -128,12 +181,10 @@ function animate() {
 
   world.step(1/60);
   renderer.render(scene, camera);
-}
-
-animate();
+} animate();
 
 window.addEventListener('click', () => {
-  head.body.velocity.set(Math.random()*10-5, 5, Math.random()*10-5);
+  head.body.velocity.set(Math.random()*20-10, 20, Math.random()*20-10);
 });
 
 // Handle window resize
