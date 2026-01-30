@@ -67,31 +67,46 @@ const studBrickMaterial = [
     new THREE.MeshBasicMaterial({ map: studSideTexture })  // Back
 ];
 
+let objects = [];
 
-const cube = new PhysicsObject({
-  world: world, 
-  scene: scene,  
+const head = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
   shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)), 
   geometry: new THREE.BoxGeometry(1, 1, 1), 
   material: studMaterial, 
-  position: {x: 0, y:5, z:0}});
+  position: {x: 0, y:7, z:0}
+});
 
-const cube1 = new PhysicsObject({
-  world: world,
-  scene: scene,
+const body = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
   shape: new CANNON.Box(new CANNON.Vec3(1, 1, 0.5)),
   geometry: new THREE.BoxGeometry(2, 2, 1),
   material: studMaterial,
-  position: {x: 0, y: 7, z: 0}
+  position: {x: 0, y: 5, z: 0}
+});
+
+const arm1 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: 1.6, y: 5, z: 0}
+});
+
+const arm2 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: -1.6, y: 5, z: 0}
 });
 
 var localPivotA = new CANNON.Vec3(0, -0.5, 0); // bottom of bodyA
 var localPivotB = new CANNON.Vec3(0, 1, 0); // top of bodyB
-
 var constraint = new CANNON.PointToPointConstraint(
-    cube.body, localPivotA,
-    cube1.body, localPivotB,
-    { collideConnected: false }
+    head.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
 );
 
 world.addConstraint(constraint);
@@ -102,12 +117,13 @@ let t = 0;
 function animate() {
   requestAnimationFrame(animate);
 
-  cube.syncPosition();
-  cube1.syncPosition();
+  objects.forEach(function(currentValue, index, arr) {
+    currentValue.syncPosition();
+  });
 
-  camera.position.x = cube.position.x + Math.sin(t * 0.003) * 10;
-  camera.position.z = cube.position.z + Math.cos(t * 0.003) * 10;
-  camera.lookAt(cube.position.x, cube.position.y, cube.position.z);
+  camera.position.x = head.position.x + Math.sin(t * 0.003) * 10;
+  camera.position.z = head.position.z + Math.cos(t * 0.003) * 10;
+  camera.lookAt(head.position.x, head.position.y, head.position.z);
   t++;
 
   world.step(1/60);
@@ -117,7 +133,7 @@ function animate() {
 animate();
 
 window.addEventListener('click', () => {
-  cube.body.velocity.set(Math.random()*10-5, 5, Math.random()*10-5);
+  head.body.velocity.set(Math.random()*10-5, 5, Math.random()*10-5);
 });
 
 // Handle window resize

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import * as CANNON from "cannon";
 
 class PhysicsObject {
-    constructor ({ world, scene, shape, geometry, material,
+    constructor ({ world, scene, objects, shape, geometry, material,
                    mass = 1, position = { x: 0, y: 0, z: 0 }, restitution = 0.2, friction = 1,}) {
         // --- Physics ---
         this.body = new CANNON.Body({
@@ -20,6 +20,8 @@ class PhysicsObject {
         // --- Render ---
         this.mesh = new THREE.Mesh(geometry, material);
         scene.add(this.mesh);
+
+        objects.push(this);
     }
 
     syncPosition() {
