@@ -96,8 +96,7 @@ function animate() {
 animate();
 
 window.addEventListener('click', () => {
-  cube.syncPosition();
-  cube.applyImpulse({x: Math.random(), y: 10, z: Math.random()});
+  cube.body.velocity.set(Math.random()*10-5, 5, Math.random()*10-5);
 });
 
 // Handle window resize
