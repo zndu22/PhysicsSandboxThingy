@@ -69,14 +69,102 @@ const studBrickMaterial = [
     new THREE.MeshBasicMaterial({ map: studSideTexture, color: color })  // Back
 ];
 
+let objects = [];
 
-const cube = new PhysicsObject({
-  world: world, 
-  scene: scene,  
+const head = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
   shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)), 
   geometry: new THREE.BoxGeometry(1, 1, 1), 
-  material: studBrickMaterial, 
-  position: {x: 0, y:10, z:0}});
+  material: studMaterial, 
+  position: {x: 0, y:7, z:0}
+});
+
+const body = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(1, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(2, 2, 1),
+  material: studMaterial,
+  position: {x: 0, y: 5, z: 0}
+});
+
+const arm1 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: 1.6, y: 5, z: 0}
+});
+
+const arm2 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: -1.6, y: 5, z: 0}
+});
+
+const leg1 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: 0.5, y: 3, z: 0}
+});
+
+const leg2 = new PhysicsObject({
+  world: world, scene: scene, objects: objects,
+  shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
+  geometry: new THREE.BoxGeometry(1, 2, 1),
+  material: studMaterial,
+  position: {x: -0.5, y: 3, z: 0}
+});
+
+var localPivotA = new CANNON.Vec3(0, -0.51, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(0, 1.01, 0); // top of bodyB
+var headConstraint = new CANNON.PointToPointConstraint(
+    head.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+var localPivotA = new CANNON.Vec3(-0.51, 0.5, 0);
+var localPivotB = new CANNON.Vec3(1.01, 0.5, 0);
+var arm1Constraint = new CANNON.PointToPointConstraint(
+    arm1.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+var localPivotA = new CANNON.Vec3(0.51, 0.5, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(-1.01, 0.5, 0); // top of bodyB
+var arm2Constraint = new CANNON.PointToPointConstraint(
+    arm2.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+var localPivotA = new CANNON.Vec3(0, 1, 0);
+var localPivotB = new CANNON.Vec3(0.5, -1.01, 0);
+var leg1Constraint = new CANNON.PointToPointConstraint(
+    leg1.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+var localPivotA = new CANNON.Vec3(0, 1, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(-0.5, -1.01, 0); // top of bodyB
+var leg2Constraint = new CANNON.PointToPointConstraint(
+    leg2.body, localPivotA,
+    body.body, localPivotB,
+    {collideConnected: false}
+);
+
+world.addConstraint(headConstraint);
+world.addConstraint(arm1Constraint);
+world.addConstraint(arm2Constraint);
+world.addConstraint(leg1Constraint);
+world.addConstraint(leg2Constraint);
+
 
 let t = 0;
 
@@ -84,22 +172,21 @@ let t = 0;
 function animate() {
   requestAnimationFrame(animate);
 
-  cube.syncPosition();
+  objects.forEach(function(currentValue, index, arr) {
+    currentValue.syncPosition();
+  });
 
-  camera.position.x = cube.position.x + Math.sin(t * 0.003) * 10;
-  camera.position.z = cube.position.z + Math.cos(t * 0.003) * 10;
-  camera.lookAt(cube.position.x, cube.position.y, cube.position.z);
+  camera.position.x = head.position.x + Math.sin(t * 0.003) * 10;
+  camera.position.z = head.position.z + Math.cos(t * 0.003) * 10;
+  camera.lookAt(head.position.x, head.position.y, head.position.z);
   t++;
 
   world.step(1/60);
   renderer.render(scene, camera);
-}
-
-animate();
+} animate();
 
 window.addEventListener('click', () => {
-  cube.syncPosition();
-  cube.applyImpulse({x: 0, y: 10, z: 0});
+  head.body.velocity.set(Math.random()*20-10, 20, Math.random()*20-10);
 });
 
 // Handle window resize
