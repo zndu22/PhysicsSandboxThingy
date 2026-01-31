@@ -119,40 +119,40 @@ const leg2 = new PhysicsObject({
   position: {x: -0.5, y: 3, z: 0}
 });
 
-var localPivotA = new CANNON.Vec3(0, -0.51, 0); // bottom of bodyA
-var localPivotB = new CANNON.Vec3(0, 1.01, 0); // top of bodyB
+var localPivotA = new CANNON.Vec3(0, -0.51, 0); //bodyA
+var localPivotB = new CANNON.Vec3(0, 1.01, 0); //bodyB
 var headConstraint = new CANNON.PointToPointConstraint(
     head.body, localPivotA,
     body.body, localPivotB,
     {collideConnected: false}
 );
 
-var localPivotA = new CANNON.Vec3(-0.51, 0.5, 0);
-var localPivotB = new CANNON.Vec3(1.01, 0.5, 0);
+var localPivotA = new CANNON.Vec3(0, 0.5, 0);
+var localPivotB = new CANNON.Vec3(1.51, 0.5, 0);
 var arm1Constraint = new CANNON.PointToPointConstraint(
     arm1.body, localPivotA,
     body.body, localPivotB,
     {collideConnected: false}
 );
 
-var localPivotA = new CANNON.Vec3(0.51, 0.5, 0); // bottom of bodyA
-var localPivotB = new CANNON.Vec3(-1.01, 0.5, 0); // top of bodyB
+var localPivotA = new CANNON.Vec3(0, 0.5, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(-1.51, 0.5, 0); // top of bodyB
 var arm2Constraint = new CANNON.PointToPointConstraint(
     arm2.body, localPivotA,
     body.body, localPivotB,
     {collideConnected: false}
 );
 
-var localPivotA = new CANNON.Vec3(0, 1, 0);
-var localPivotB = new CANNON.Vec3(0.5, -1.01, 0);
+var localPivotA = new CANNON.Vec3(0, 0.5, 0);
+var localPivotB = new CANNON.Vec3(0.51, -1.51, 0);
 var leg1Constraint = new CANNON.PointToPointConstraint(
     leg1.body, localPivotA,
     body.body, localPivotB,
     {collideConnected: false}
 );
 
-var localPivotA = new CANNON.Vec3(0, 1, 0); // bottom of bodyA
-var localPivotB = new CANNON.Vec3(-0.5, -1.01, 0); // top of bodyB
+var localPivotA = new CANNON.Vec3(0, 0.5, 0); // bottom of bodyA
+var localPivotB = new CANNON.Vec3(-0.51, -1.51, 0); // top of bodyB
 var leg2Constraint = new CANNON.PointToPointConstraint(
     leg2.body, localPivotA,
     body.body, localPivotB,
@@ -167,6 +167,14 @@ world.addConstraint(leg2Constraint);
 
 
 let t = 0;
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+let draggedBody = null;
+let dragConstraint = null;
+let mouseBody = null;
+let dragDistance = 0;
 
 // Animation loop
 function animate() {
@@ -185,9 +193,75 @@ function animate() {
   renderer.render(scene, camera);
 } animate();
 
-window.addEventListener('click', () => {
-  head.body.velocity.set(Math.random()*20-10, 20, Math.random()*20-10);
+function updateMouse(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}
+
+window.addEventListener("mousedown", (e) => {
+    updateMouse(e);
+    raycaster.setFromCamera(mouse, camera);
+
+    const hits = raycaster.intersectObjects(scene.children, true);
+    if (hits.length === 0) return;
+
+    const hit = hits[0];
+    const mesh = hit.object;
+    const body = mesh.userData.physicsObject.body;
+    if (!body) return;
+
+    draggedBody = body;
+    dragDistance = hit.distance;
+
+    // Kinematic mouse body
+    mouseBody = new CANNON.Body({
+        mass: 0,
+        type: CANNON.Body.KINEMATIC
+    });
+    mouseBody.position.copy(hit.point);
+    world.addBody(mouseBody);
+
+    const localPivot = body.pointToLocalFrame(
+        new CANNON.Vec3(
+            hit.point.x,
+            hit.point.y,
+            hit.point.z
+        )
+    );
+
+    dragConstraint = new CANNON.PointToPointConstraint(
+        body,
+        localPivot,
+        mouseBody,
+        new CANNON.Vec3(0, 0, 0)
+    );
+
+    world.addConstraint(dragConstraint);
 });
+
+window.addEventListener("mousemove", (e) => {
+    if (!mouseBody) return;
+
+    updateMouse(e);
+    raycaster.setFromCamera(mouse, camera);
+
+    const target = new THREE.Vector3();
+    raycaster.ray.at(dragDistance, target);
+
+    mouseBody.position.set(target.x, target.y, target.z);
+});
+
+window.addEventListener("mouseup", () => {
+    if (!dragConstraint) return;
+
+    world.removeConstraint(dragConstraint);
+    world.removeBody(mouseBody);
+
+    dragConstraint = null;
+    mouseBody = null;
+    draggedBody = null;
+});
+
 
 // Handle window resize
 window.addEventListener('resize', () => {
