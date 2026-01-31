@@ -58,13 +58,15 @@ const studTopTexture = textureLoader.load("./assets/studTop.png");
 const studBottomTexture = textureLoader.load("./assets/studBottom.png");
 const studSideTexture = textureLoader.load("./assets/studSide.png");
 
+const color = '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+
 const studBrickMaterial = [
-    new THREE.MeshBasicMaterial({ map: studSideTexture }), // Right
-    new THREE.MeshBasicMaterial({ map: studSideTexture }), // Left
-    new THREE.MeshBasicMaterial({ map: studTopTexture }), // Top
-    new THREE.MeshBasicMaterial({ map: studBottomTexture }), // Bottom
-    new THREE.MeshBasicMaterial({ map: studSideTexture }), // Front
-    new THREE.MeshBasicMaterial({ map: studSideTexture })  // Back
+    new THREE.MeshBasicMaterial({ map: studSideTexture, color: color }), // Right
+    new THREE.MeshBasicMaterial({ map: studSideTexture, color: color }), // Left
+    new THREE.MeshBasicMaterial({ map: studTopTexture, color: color }), // Top
+    new THREE.MeshBasicMaterial({ map: studBottomTexture, color: color }), // Bottom
+    new THREE.MeshBasicMaterial({ map: studSideTexture, color: color }), // Front
+    new THREE.MeshBasicMaterial({ map: studSideTexture, color: color })  // Back
 ];
 
 
@@ -97,7 +99,7 @@ animate();
 
 window.addEventListener('click', () => {
   cube.syncPosition();
-  cube.applyImpulse({x: Math.random(), y: 10, z: Math.random()});
+  cube.applyImpulse({x: 0, y: 10, z: 0});
 });
 
 // Handle window resize

@@ -3,7 +3,7 @@ import * as CANNON from "cannon";
 
 class PhysicsObject {
     constructor ({ world, scene, shape, geometry, material,
-                   mass = 1, position = { x: 0, y: 0, z: 0 }, restitution = 0.2, friction = 1,}) {
+                   mass = 1, position = { x: 0, y: 0, z: 0 }, restitution = 0.2, friction = 0.8,}) {
         // --- Physics ---
         this.body = new CANNON.Body({
             mass,
