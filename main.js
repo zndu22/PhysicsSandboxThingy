@@ -178,6 +178,8 @@ let dragConstraint = null;
 let mouseBody = null;
 let dragDistance = 0;
 
+let bodyRotation =  new CANNON.Vec3(0, 0, 0);
+
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
@@ -187,9 +189,7 @@ function animate() {
   });
 
   bodybody.body.angularFactor.set(0, 1  , 0);
-
-  // arm1.body.angularFactor.set(Math.sin(bodybody.body.quaternion.toEuler.x), 0, Math.cos(bodybody.body.quaternion.toEuler.x)); 
-  // arm2.body.angularFactor.set(Math.sin(bodybody.body.quaternion.toEuler.x), 0, Math.cos(bodybody.body.quaternion.toEuler.x));
+  head.body.angularFactor.set(0, 1, 0);
 
   camera.position.x = head.position.x + Math.sin(t * 0.003) * 10;
   camera.position.z = head.position.z + Math.cos(t * 0.003) * 10;
