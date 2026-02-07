@@ -168,8 +168,6 @@ world.addConstraint(arm2Constraint);
 world.addConstraint(leg1Constraint);
 world.addConstraint(leg2Constraint);
 
-bodybody.fixedRotation = true;
-
 let t = 0;
 
 const raycaster = new THREE.Raycaster();
@@ -187,6 +185,8 @@ function animate() {
   objects.forEach(function(currentValue, index, arr) {
     currentValue.syncPosition();
   });
+
+  bodybody.body.angularFactor.set(0, 1  , 0);
 
   // arm1.body.angularFactor.set(Math.sin(bodybody.body.quaternion.toEuler.x), 0, Math.cos(bodybody.body.quaternion.toEuler.x)); 
   // arm2.body.angularFactor.set(Math.sin(bodybody.body.quaternion.toEuler.x), 0, Math.cos(bodybody.body.quaternion.toEuler.x));
