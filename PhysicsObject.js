@@ -16,6 +16,9 @@ class PhysicsObject {
         });
         world.addBody(this.body);
 
+        this.body.collisionFilterGroup = 2;
+        this.body.collisionFilterMask = 1;
+
         // --- Render ---
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.userData.physicsObject = this; // Link back to this object
