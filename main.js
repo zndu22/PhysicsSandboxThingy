@@ -74,6 +74,7 @@ const studBrickMaterial = [
 
 let objects = [];
 
+//TODO: put all this into a player class.
 const head = new PhysicsObject({
   world: world, scene: scene, objects: objects,
   shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)), 
@@ -123,43 +124,76 @@ const leg2 = new PhysicsObject({
 });
 
 var localPivotA = new CANNON.Vec3(0, -0.51, 0); //bodyA
+var axisA = new CANNON.Vec3(0, 1, 0);
 var localPivotB = new CANNON.Vec3(0, 1.01, 0); //bodyB
-var headConstraint = new CANNON.PointToPointConstraint(
-    head.body, localPivotA,
-    bodybody.body, localPivotB,
-    {collideConnected: true}
+var axisB = new CANNON.Vec3(0, 1, 0);
+var headConstraint = new CANNON.HingeConstraint(
+    head.body,
+    bodybody.body,
+    { 
+      pivotA: localPivotA, 
+      axisA: axisA, 
+      pivotB: localPivotB, 
+      axisB: axisB,
+    }
 );
 
 var localPivotA = new CANNON.Vec3(0, 0.5, 0);
+var axisA = new CANNON.Vec3(1, 0, 0);
 var localPivotB = new CANNON.Vec3(1.51, 0.5, 0);
-var arm1Constraint = new CANNON.PointToPointConstraint(
-    arm1.body, localPivotA,
-    bodybody.body, localPivotB,
-    {collideConnected: true}
+var axisB = new CANNON.Vec3(1, 0, 0);
+var arm1Constraint = new CANNON.HingeConstraint(
+    arm1.body,
+    bodybody.body,
+    { 
+      pivotA: localPivotA, 
+      axisA: axisA, 
+      pivotB: localPivotB, 
+      axisB: axisB,
+      collideConnected: true
+    }
 );
 
 var localPivotA = new CANNON.Vec3(0, 0.5, 0); // bottom of bodyA
 var localPivotB = new CANNON.Vec3(-1.51, 0.5, 0); // top of bodyB
-var arm2Constraint = new CANNON.PointToPointConstraint(
-    arm2.body, localPivotA,
-    bodybody.body, localPivotB,
-    {collideConnected: true}
+var arm2Constraint = new CANNON.HingeConstraint(
+    arm2.body,
+    bodybody.body,
+    { 
+      pivotA: localPivotA, 
+      axisA: axisA, 
+      pivotB: localPivotB, 
+      axisB: axisB,
+      collideConnected: true
+    }
 );
 
 var localPivotA = new CANNON.Vec3(0, 1, 0);
 var localPivotB = new CANNON.Vec3(0.51, -1, 0);
-var leg1Constraint = new CANNON.PointToPointConstraint(
-    leg1.body, localPivotA,
-    bodybody.body, localPivotB,
-    {collideConnected: true}
+var leg1Constraint = new CANNON.HingeConstraint(
+    leg1.body,
+    bodybody.body,
+    { 
+      pivotA: localPivotA, 
+      axisA: axisA, 
+      pivotB: localPivotB, 
+      axisB: axisB,
+      collideConnected: true
+    }
 );
 
 var localPivotA = new CANNON.Vec3(0, 1, 0); // bottom of bodyA
 var localPivotB = new CANNON.Vec3(-0.51, -1, 0); // top of bodyB
-var leg2Constraint = new CANNON.PointToPointConstraint(
-    leg2.body, localPivotA,
-    bodybody.body, localPivotB,
-    {collideConnected: true}
+var leg2Constraint = new CANNON.HingeConstraint(
+    leg2.body,
+    bodybody.body,
+    { 
+      pivotA: localPivotA, 
+      axisA: axisA, 
+      pivotB: localPivotB, 
+      axisB: axisB,
+      collideConnected: true
+    }
 );
 
 world.addConstraint(headConstraint);
@@ -167,6 +201,11 @@ world.addConstraint(arm1Constraint);
 world.addConstraint(arm2Constraint);
 world.addConstraint(leg1Constraint);
 world.addConstraint(leg2Constraint);
+
+// I don't know if this acutally does anything
+objects.forEach(function(currentValue, index, arr) {
+    currentValue.body.updateMassProperties();
+});
 
 let t = 0;
 
@@ -191,6 +230,8 @@ function animate() {
   bodybody.body.angularFactor.set(0, 1  , 0);
   head.body.angularFactor.set(0, 1, 0);
 
+  //TODO: implement orbit camera controls
+  //TODO: and player movement, but in the player class, when I make it.
   camera.position.x = head.position.x + Math.sin(t * 0.003) * 10;
   camera.position.z = head.position.z + Math.cos(t * 0.003) * 10;
   camera.lookAt(head.position.x, head.position.y, head.position.z);
